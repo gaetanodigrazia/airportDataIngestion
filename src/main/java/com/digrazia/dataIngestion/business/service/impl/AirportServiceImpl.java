@@ -6,13 +6,9 @@ import com.digrazia.dataIngestion.integration.webclient.AirportWebClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.Map;
+
 
 
 @Service
@@ -39,7 +35,7 @@ public class AirportServiceImpl implements AirportService {
         kafkaProducer.sendMessage(KAFKA_TOPIC, response);
     }
 
-    private long getEpochFromLocalDateTime(LocalDateTime localDateTime, int hourOffset) {
+    public long getEpochFromLocalDateTime(LocalDateTime localDateTime, int hourOffset) {
         if (hourOffset != 0) {
             localDateTime = localDateTime.minusHours(hourOffset);
         }
