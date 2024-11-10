@@ -1,34 +1,55 @@
 package com.digrazia.dataIngestion.integration.webclient;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class AirportWebClient {
 
     private final RestTemplate restTemplate;
 
+    @Value("${custom.apiKey}")
+    private String apiKey;
+
+    private static final String AIRPORT_API_URL = "https://api.api-ninjas.com/v1/airports";
+
     @Autowired
     public AirportWebClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
+    public String getAirportInfo(String airportIcao) {
 
-    public List<Map<String, Object>> getAllFlights(long begin, long end) {
-        String url = "https://opensky-network.org/api/flights/all";
+        String aiportApiUrl = getAirportApiUrl(airportIcao);
+        HttpEntity<String> entity = getHttpEntityWithHeaders();
 
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("begin", begin)
-                .queryParam("end", end);
+        ResponseEntity<String> exchange = restTemplate.exchange(aiportApiUrl, HttpMethod.GET, entity, String.class);
 
-        System.out.println("API Call: " + uriBuilder.toUriString());
-        List<Map<String, Object>> flights =
-                restTemplate.getForObject(uriBuilder.toUriString(), List.class);
-        return flights;
+        return exchange.getBody();
     }
+
+    private String getAirportApiUrl(String airportIcao) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(AIRPORT_API_URL)
+                .queryParam("icao", airportIcao);
+        return uriBuilder.toUriString();
+    }
+
+    private HttpEntity<String> getHttpEntityWithHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Api-Key", apiKey);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        return entity;
+    }
+
 }
