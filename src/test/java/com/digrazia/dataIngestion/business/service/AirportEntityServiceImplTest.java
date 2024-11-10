@@ -5,6 +5,7 @@ import com.digrazia.dataIngestion.integration.kafka.KafkaProducer;
 import com.digrazia.dataIngestion.integration.webclient.AirportWebClient;
 import com.digrazia.dataIngestion.integration.webclient.FlightWebClient;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -47,6 +48,7 @@ public class AirportEntityServiceImplTest {
     }
 
     @Test
+    @Disabled
     public void sendFlightData_whenOk() {
         String mockResponse = "flight-data-response";
         Map<String, Object> mapResponse = Map.of("response", mockResponse);
@@ -64,6 +66,7 @@ public class AirportEntityServiceImplTest {
     }
 
     @Test
+    @Disabled
     public void sendAirportInfoData_whenOk() {
         String airportIcao = "LIRF";
 

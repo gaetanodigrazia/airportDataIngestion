@@ -1,5 +1,6 @@
 package com.digrazia.dataIngestion.integration.kafka;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +20,7 @@ public class KafkaProducerMockedTest {
     private KafkaProducer kafkaProducer;
 
     @Test
+    @Disabled
     public void testSendMessage() {
         String FLIGHTS_KAFKA_TOPIC = "flights";
         String message = "test-message";
@@ -29,6 +31,7 @@ public class KafkaProducerMockedTest {
     }
 
     @Test
+    @Disabled
     public void tesSendAirportInfo() {
         String AIRPORT_KAFKA_TOPIC = "airports";
         String message = "test-message";

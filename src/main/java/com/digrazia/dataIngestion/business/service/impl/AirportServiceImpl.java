@@ -2,6 +2,10 @@ package com.digrazia.dataIngestion.business.service.impl;
 
 import com.digrazia.dataIngestion.business.service.AirportService;
 import com.digrazia.dataIngestion.integration.kafka.KafkaProducer;
+import com.digrazia.dataIngestion.integration.mapper.AirportEntityMapper;
+import com.digrazia.dataIngestion.integration.mapper.FlightEntityMapper;
+import com.digrazia.dataIngestion.integration.model.AirportEntity;
+import com.digrazia.dataIngestion.integration.model.FlightEntity;
 import com.digrazia.dataIngestion.integration.webclient.AirportWebClient;
 import com.digrazia.dataIngestion.integration.webclient.FlightWebClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +39,9 @@ public class AirportServiceImpl implements AirportService {
     @Override
     public void sendAirportInfoData(String airportIcao)  {
         String response = airportWebClient.getAirportInfo(airportIcao).toString();
-        kafkaProducer.sendAirportInfo(response);
+        List<AirportEntity> airportEntityList = AirportEntityMapper.fromStringToAirportEntity(response);
+
+        airportEntityList.forEach(kafkaProducer::sendAirportInfo);
     }
 
 
