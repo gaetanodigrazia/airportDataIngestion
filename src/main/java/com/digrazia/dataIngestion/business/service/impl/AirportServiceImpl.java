@@ -11,8 +11,6 @@ import com.digrazia.dataIngestion.integration.webclient.FlightWebClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,22 +20,14 @@ public class AirportServiceImpl implements AirportService {
 
     private final KafkaProducer kafkaProducer;
     private final AirportWebClient airportWebClient;
-    private final FlightWebClient flightWebClient;
 
     @Autowired
-    public AirportServiceImpl(KafkaProducer kafkaProducer, AirportWebClient airportWebClient, FlightWebClient flightWebClient) {
+    public AirportServiceImpl(KafkaProducer kafkaProducer, AirportWebClient airportWebClient) {
         this.kafkaProducer = kafkaProducer;
         this.airportWebClient = airportWebClient;
-        this.flightWebClient = flightWebClient;
     }
 
-    @Override
-    public void sendFlightInfoData(long startTime, long endTime) {
-        String response = flightWebClient.getAllFlights(startTime, endTime);
 
-        List<FlightInfoEntity> flightInfoEntityList = FlightInfoEntityMapper.fromStringToFlightInfoEntitList(response);
-        kafkaProducer.sendFlightInfo(flightInfoEntityList);
-    }
 
     @Override
     public void sendAirportInfoData(String airportIcao)  {
@@ -48,27 +38,12 @@ public class AirportServiceImpl implements AirportService {
         kafkaProducer.sendAirportInfo(airportEntity);
     }
 
-
-    @Scheduled(fixedRate = 3600000)
-    private void sendHourlyFlightData(){
-        long startTime = getEpochFromLocalDateTime(LocalDateTime.now(), 2);
-        long endTime = getEpochFromLocalDateTime(LocalDateTime.now(), 0);
-        sendFlightInfoData(startTime, endTime);
-    }
-
     @Scheduled(fixedRate = 259200000)
     private void sendAllAirportInfoData(){
         List<String> airportIcaoList = getAirportICAOList();
         airportIcaoList
                 .stream()
                 .forEach(icao -> sendAirportInfoData(icao));
-    }
-
-    private long getEpochFromLocalDateTime(LocalDateTime localDateTime, int hourOffset) {
-        if (hourOffset != 0) {
-            localDateTime = localDateTime.minusHours(hourOffset);
-        }
-        return localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond();
     }
 
     private static List<String> getAirportICAOList() {
