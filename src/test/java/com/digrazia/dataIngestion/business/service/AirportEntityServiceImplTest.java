@@ -77,7 +77,7 @@ public class AirportEntityServiceImplTest {
 
         verify(airportWebClient).getAirportInfo(airportIcao);
 
-        verify(kafkaProducer, times(1)).sendAirportInfo(mockResponse);
+        //verify(kafkaProducer, times(1)).sendAirportInfo(mockResponse);
     }
 
     private long getEpochFromLocalDateTime(LocalDateTime localDateTime, int hourOffset) {

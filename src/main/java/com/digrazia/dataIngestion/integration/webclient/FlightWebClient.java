@@ -1,6 +1,13 @@
 package com.digrazia.dataIngestion.integration.webclient;
 
+import com.digrazia.dataIngestion.integration.model.FlightInfoEntity;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,17 +25,24 @@ public class FlightWebClient {
         this.restTemplate = restTemplate;
     }
 
-    public List<Map<String, Object>> getAllFlights(long begin, long end) {
+    public String getAllFlights(long begin, long end) {
         String url = "https://opensky-network.org/api/flights/all";
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("begin", begin)
                 .queryParam("end", end);
 
-        System.out.println("API Call: " + uriBuilder.toUriString());
-        List<Map<String, Object>> flights =
-                restTemplate.getForObject(uriBuilder.toUriString(), List.class);
-        return flights;
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                uriBuilder.toUriString(),
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+
+        return response.getBody();
     }
 
 }
