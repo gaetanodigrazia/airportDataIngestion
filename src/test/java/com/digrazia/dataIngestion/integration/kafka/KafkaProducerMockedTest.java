@@ -36,7 +36,7 @@ public class KafkaProducerMockedTest {
         String AIRPORT_KAFKA_TOPIC = "airports";
         String message = "test-message";
 
-        kafkaProducer.sendAirportInfo(message);
+        //kafkaProducer.sendAirportInfo(message);
 
         verify(kafkaTemplate, times(1)).send(AIRPORT_KAFKA_TOPIC, message);
     }

@@ -2,7 +2,7 @@ package com.digrazia.dataIngestion.integration.model;
 
 import java.util.Objects;
 
-public class FlightEntity {
+public class FlightInfoEntity {
 
     private String icao24;
     private long firstSeen;
@@ -17,7 +17,7 @@ public class FlightEntity {
     private int departureAirportCandidatesCount;
     private int arrivalAirportCandidatesCount;
 
-    public FlightEntity() {}
+    public FlightInfoEntity() {}
 
     public String getIcao24() {
         return icao24;
@@ -119,7 +119,7 @@ public class FlightEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FlightEntity that = (FlightEntity) o;
+        FlightInfoEntity that = (FlightInfoEntity) o;
         return firstSeen == that.firstSeen && lastSeen == that.lastSeen && estDepartureAirportHorizDistance == that.estDepartureAirportHorizDistance && estDepartureAirportVertDistance == that.estDepartureAirportVertDistance && estArrivalAirportHorizDistance == that.estArrivalAirportHorizDistance && estArrivalAirportVertDistance == that.estArrivalAirportVertDistance && departureAirportCandidatesCount == that.departureAirportCandidatesCount && arrivalAirportCandidatesCount == that.arrivalAirportCandidatesCount && Objects.equals(icao24, that.icao24) && Objects.equals(estDepartureAirport, that.estDepartureAirport) && Objects.equals(estArrivalAirport, that.estArrivalAirport) && Objects.equals(callsign, that.callsign);
     }
 

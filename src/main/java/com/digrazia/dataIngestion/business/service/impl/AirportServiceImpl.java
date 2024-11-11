@@ -3,9 +3,9 @@ package com.digrazia.dataIngestion.business.service.impl;
 import com.digrazia.dataIngestion.business.service.AirportService;
 import com.digrazia.dataIngestion.integration.kafka.KafkaProducer;
 import com.digrazia.dataIngestion.integration.mapper.AirportEntityMapper;
-import com.digrazia.dataIngestion.integration.mapper.FlightEntityMapper;
+import com.digrazia.dataIngestion.integration.mapper.FlightInfoEntityMapper;
 import com.digrazia.dataIngestion.integration.model.AirportEntity;
-import com.digrazia.dataIngestion.integration.model.FlightEntity;
+import com.digrazia.dataIngestion.integration.model.FlightInfoEntity;
 import com.digrazia.dataIngestion.integration.webclient.AirportWebClient;
 import com.digrazia.dataIngestion.integration.webclient.FlightWebClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 @Service
 public class AirportServiceImpl implements AirportService {
@@ -31,17 +32,20 @@ public class AirportServiceImpl implements AirportService {
     }
 
     @Override
-    public void sendFlightData(long startTime, long endTime) {
-        String response = flightWebClient.getAllFlights(startTime, endTime).toString();
-        kafkaProducer.sendFlightInfo(response);
+    public void sendFlightInfoData(long startTime, long endTime) {
+        String response = flightWebClient.getAllFlights(startTime, endTime);
+
+        List<FlightInfoEntity> flightInfoEntityList = FlightInfoEntityMapper.fromStringToFlightInfoEntitList(response);
+        kafkaProducer.sendFlightInfo(flightInfoEntityList);
     }
 
     @Override
     public void sendAirportInfoData(String airportIcao)  {
-        String response = airportWebClient.getAirportInfo(airportIcao).toString();
-        List<AirportEntity> airportEntityList = AirportEntityMapper.fromStringToAirportEntity(response);
+        String response = airportWebClient.getAirportInfo(airportIcao);
 
-        airportEntityList.forEach(kafkaProducer::sendAirportInfo);
+        AirportEntity airportEntity = AirportEntityMapper.fromStringToAirportEntity(response);
+
+        kafkaProducer.sendAirportInfo(airportEntity);
     }
 
 
@@ -49,7 +53,7 @@ public class AirportServiceImpl implements AirportService {
     private void sendHourlyFlightData(){
         long startTime = getEpochFromLocalDateTime(LocalDateTime.now(), 2);
         long endTime = getEpochFromLocalDateTime(LocalDateTime.now(), 0);
-        sendFlightData(startTime, endTime);
+        sendFlightInfoData(startTime, endTime);
     }
 
     @Scheduled(fixedRate = 259200000)
