@@ -9,6 +9,8 @@ services:
       - 2181:2181
       - 2888:2888
       - 3888:3888
+    networks:
+      - airport_data_network
 
   kafka1:
     image: wurstmeister/kafka:latest
@@ -25,7 +27,9 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:29092,EXTERNAL://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CREATE_TOPICS: "flights:3:1, airports:3:1"
+      KAFKA_CREATE_TOPICS: "flights:3:1, airports:3:1:cleanup.policy=compact,retention.ms=259200000"
+    networks:
+      - airport_data_network
 
   kafka2:
     image: wurstmeister/kafka:latest
@@ -42,9 +46,10 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:29093,EXTERNAL://localhost:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CREATE_TOPICS: "flights:3:1, airports:3:1"
+      KAFKA_CREATE_TOPICS: "flights:3:1, airports:3:1:cleanup.policy=compact,retention.ms=259200000"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
-
+    networks:
+      - airport_data_network
 
   kafdrop:
     image: obsidiandynamics/kafdrop
@@ -57,6 +62,8 @@ services:
     depends_on:
       - kafka1
       - kafka2
+    networks:
+      - airport_data_network
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.3.3
@@ -72,3 +79,22 @@ services:
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+    networks:
+      - airport_data_network
+
+  dataIngestion:
+    build:
+      context: .  # Context della build (directory del Dockerfile)
+      dockerfile: Dockerfile
+    image: local/app:latest  # Nome locale dell’immagine creata
+    ports:
+      - "8085:8085"
+    env_file:
+      - .env
+    networks:
+      - airport_data_network
+
+networks:
+  airport_data_network:
+    driver: bridge
+

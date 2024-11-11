@@ -1,43 +1,60 @@
 package com.digrazia.dataIngestion.integration.kafka;
 
+import com.digrazia.dataIngestion.integration.model.AirportEntity;
+import com.digrazia.dataIngestion.integration.model.FlightInfoEntity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class KafkaProducerMockedTest {
     @Mock
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, List<FlightInfoEntity>> flightKafkaTemplate;
 
     @InjectMocks
     private KafkaProducer kafkaProducer;
 
-    @Test
-    @Disabled
-    public void testSendMessage() {
-        String FLIGHTS_KAFKA_TOPIC = "flights";
-        String message = "test-message";
+    @Mock
+    private KafkaTemplate<String, AirportEntity> airportKafkaTemplate;
 
-        kafkaProducer.sendFlightInfo(message);
-
-        verify(kafkaTemplate, times(1)).send(FLIGHTS_KAFKA_TOPIC, message);
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    @Disabled
-    public void tesSendAirportInfo() {
-        String AIRPORT_KAFKA_TOPIC = "airports";
-        String message = "test-message";
+    void testSendFlightInfo() {
+        FlightInfoEntity flightInfoEntity = new FlightInfoEntity();
+        flightInfoEntity.setIcao24("icao24");
+        List<FlightInfoEntity> flightInfoEntityList = List.of(flightInfoEntity);
 
-        //kafkaProducer.sendAirportInfo(message);
+        kafkaProducer.sendFlightInfo(flightInfoEntityList);
 
-        verify(kafkaTemplate, times(1)).send(AIRPORT_KAFKA_TOPIC, message);
+        verify(flightKafkaTemplate, times(1)).send("flights", flightInfoEntityList);
     }
+
+    @Test
+    void testSendAirportInfo() {
+        AirportEntity airportEntity = new AirportEntity();
+        airportEntity.setIcao("EDDF");
+
+        kafkaProducer.sendAirportInfo(airportEntity);
+
+        verify(airportKafkaTemplate, times(1)).send("airports", airportEntity.getIcao(), airportEntity);
+    }
+
+
 }
