@@ -2,6 +2,8 @@ package com.digrazia.dataIngestion.business.service;
 
 public interface AirportService {
 
-    void sendData(String jsonData);
+    void sendFlightData(long startTime, long endTime);
+
+    void sendAirportInfoData(String airportIcao);
 
 }
