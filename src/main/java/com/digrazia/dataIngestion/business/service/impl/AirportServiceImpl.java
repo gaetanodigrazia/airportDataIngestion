@@ -43,7 +43,16 @@ public class AirportServiceImpl implements AirportService {
         List<String> airportIcaoList = getAirportICAOList();
         airportIcaoList
                 .stream()
-                .forEach(icao -> sendAirportInfoData(icao));
+                .forEach(icao -> {
+                    sendAirportInfoData(icao);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        System.err.println("Thread interrotto durante il ritardo per ICAO: " + icao);
+                    }
+                });
+
     }
 
     private static List<String> getAirportICAOList() {
