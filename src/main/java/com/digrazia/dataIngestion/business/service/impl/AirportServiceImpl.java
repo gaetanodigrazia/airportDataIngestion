@@ -99,6 +99,7 @@ public class AirportServiceImpl implements AirportService {
                 "LJLJ", // Lubiana Jože Pučnik
 
                 // Germania
+                "EDDF", // Francoforte
                 "EDDM", // Monaco di Baviera
                 "EDDS", // Stoccarda
 
