@@ -2,6 +2,7 @@ package com.digrazia.dataIngestion.business.service;
 
 public interface FlightService {
 
-    void sendFlightInfoData(long startTime, long endTime);
+    void sendDeparture(long startTime, long endTime);
+    void sendArrival(long startTime, long endTime);
 
 }

@@ -27,7 +27,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:29092,EXTERNAL://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CREATE_TOPICS: "flights:3:1, airports:3:1:cleanup.policy=compact,retention.ms=259200000"
+      KAFKA_CREATE_TOPICS: "departures:3:1, arrivals:3:1, airports:3:1:cleanup.policy=compact,retention.ms=259200000"
     networks:
       - airport_data_network
 
@@ -46,7 +46,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:29093,EXTERNAL://localhost:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CREATE_TOPICS: "flights:3:1, airports:3:1:cleanup.policy=compact,retention.ms=259200000"
+      KAFKA_CREATE_TOPICS: "departures:3:1, arrivals:3:1, airports:3:1:cleanup.policy=compact,retention.ms=259200000"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
     networks:
       - airport_data_network

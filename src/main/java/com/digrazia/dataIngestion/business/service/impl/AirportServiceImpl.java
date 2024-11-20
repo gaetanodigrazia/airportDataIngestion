@@ -49,7 +49,7 @@ public class AirportServiceImpl implements AirportService {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
-                        System.err.println("Thread interrotto durante il ritardo per ICAO: " + icao);
+                        System.err.println("Thread interrotto " + icao);
                     }
                 });
 
