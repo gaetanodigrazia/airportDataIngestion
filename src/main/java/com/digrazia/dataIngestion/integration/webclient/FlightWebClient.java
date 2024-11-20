@@ -25,8 +25,28 @@ public class FlightWebClient {
         this.restTemplate = restTemplate;
     }
 
-    public String getAllFlights(long begin, long end) {
-        String url = "https://opensky-network.org/api/flights/all";
+    public String getAllDeparture(long begin, long end) {
+        String url = "https://opensky-network.org/api/flights/departure";
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
+                .queryParam("begin", begin)
+                .queryParam("end", end);
+
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                uriBuilder.toUriString(),
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+
+        return response.getBody();
+    }
+
+    public String getAllArrival(long begin, long end) {
+        String url = "https://opensky-network.org/api/flights/arrival";
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("begin", begin)
