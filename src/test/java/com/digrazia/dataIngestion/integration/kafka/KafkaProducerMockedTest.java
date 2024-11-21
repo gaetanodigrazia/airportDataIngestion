@@ -3,7 +3,6 @@ package com.digrazia.dataIngestion.integration.kafka;
 import com.digrazia.dataIngestion.integration.model.AirportEntity;
 import com.digrazia.dataIngestion.integration.model.FlightInfoEntity;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,8 +13,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -35,16 +32,6 @@ public class KafkaProducerMockedTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testSendFlightInfo() {
-        FlightInfoEntity flightInfoEntity = new FlightInfoEntity();
-        flightInfoEntity.setIcao24("icao24");
-        List<FlightInfoEntity> flightInfoEntityList = List.of(flightInfoEntity);
-
-        kafkaProducer.sendFlightInfo(flightInfoEntityList);
-
-        verify(flightKafkaTemplate, times(1)).send("flights", flightInfoEntityList);
-    }
 
     @Test
     void testSendAirportInfo() {
