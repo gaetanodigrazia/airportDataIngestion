@@ -3,17 +3,12 @@ package com.digrazia.dataIngestion.business.service.impl;
 import com.digrazia.dataIngestion.business.service.AirportService;
 import com.digrazia.dataIngestion.integration.kafka.KafkaProducer;
 import com.digrazia.dataIngestion.integration.mapper.AirportEntityMapper;
-import com.digrazia.dataIngestion.integration.mapper.FlightInfoEntityMapper;
 import com.digrazia.dataIngestion.integration.model.AirportEntity;
-import com.digrazia.dataIngestion.integration.model.FlightInfoEntity;
 import com.digrazia.dataIngestion.integration.webclient.AirportWebClient;
-import com.digrazia.dataIngestion.integration.webclient.FlightWebClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 @Service
 public class AirportServiceImpl implements AirportService {
@@ -55,7 +50,7 @@ public class AirportServiceImpl implements AirportService {
 
     }
 
-    private static List<String> getAirportICAOList() {
+    private List<String> getAirportICAOList() {
         return List.of(
                 // Italia
                 "LIRF", // Roma Fiumicino

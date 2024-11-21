@@ -10,7 +10,8 @@ import java.util.List;
 
 @Service
 public class KafkaProducer {
-    private static final String FLIGHTS_KAFKA_TOPIC = "flights";
+    private static final String DEPARTURES_KAFKA_TOPIC = "departures";
+    private static final String ARRIVALS_KAFKA_TOPIC = "arrivals";
     private static final String AIRPORT_KAFKA_TOPIC = "airports";
 
     @Autowired
@@ -21,9 +22,14 @@ public class KafkaProducer {
 
     public KafkaProducer() {}
 
-    public void sendFlightInfo(List<FlightInfoEntity> flightInfoEntityList) {
-        System.out.println("Sending message to topic " + FLIGHTS_KAFKA_TOPIC + " with message " + flightInfoEntityList);
-        flightKafkaTemplate.send(FLIGHTS_KAFKA_TOPIC, flightInfoEntityList);
+    public void sendArrivalInfo(List<FlightInfoEntity> flightInfoEntityList) {
+        System.out.println("Sending message to topic " + ARRIVALS_KAFKA_TOPIC + " with message " + flightInfoEntityList);
+        flightKafkaTemplate.send(ARRIVALS_KAFKA_TOPIC, flightInfoEntityList);
+    }
+
+    public void sendDepartureInfo(List<FlightInfoEntity> flightInfoEntityList) {
+        System.out.println("Sending message to topic " + DEPARTURES_KAFKA_TOPIC + " with message " + flightInfoEntityList);
+        flightKafkaTemplate.send(DEPARTURES_KAFKA_TOPIC, flightInfoEntityList);
     }
 
     public void sendAirportInfo(AirportEntity airportEntity) {

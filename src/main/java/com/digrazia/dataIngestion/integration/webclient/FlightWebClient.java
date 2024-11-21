@@ -1,9 +1,6 @@
 package com.digrazia.dataIngestion.integration.webclient;
 
-import com.digrazia.dataIngestion.integration.model.FlightInfoEntity;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -12,26 +9,23 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Map;
-
 @Component
 public class FlightWebClient {
 
-    private final RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Autowired
     public FlightWebClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    public String getAllDeparture(long begin, long end) {
-        String url = "https://opensky-network.org/api/flights/departure";
+    public String getAllDeparture(long begin, long end, String airportIcao) {String url = "https://opensky-network.org/api/flights/departure";
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("begin", begin)
-                .queryParam("end", end);
-
+                .queryParam("end", end)
+                .queryParam("airport", airportIcao);
+        System.out.println(uriBuilder.toUriString());
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -45,12 +39,13 @@ public class FlightWebClient {
         return response.getBody();
     }
 
-    public String getAllArrival(long begin, long end) {
+    public String getAllArrival(long begin, long end, String airportIcao) {
         String url = "https://opensky-network.org/api/flights/arrival";
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("begin", begin)
-                .queryParam("end", end);
+                .queryParam("end", end)
+                .queryParam("airport", airportIcao);
 
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<Void> entity = new HttpEntity<>(headers);
