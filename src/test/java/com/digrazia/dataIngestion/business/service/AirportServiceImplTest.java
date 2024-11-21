@@ -3,20 +3,13 @@ package com.digrazia.dataIngestion.business.service;
 import com.digrazia.dataIngestion.business.service.impl.AirportServiceImpl;
 import com.digrazia.dataIngestion.integration.kafka.KafkaProducer;
 import com.digrazia.dataIngestion.integration.mapper.AirportEntityMapper;
-import com.digrazia.dataIngestion.integration.mapper.FlightInfoEntityMapper;
 import com.digrazia.dataIngestion.integration.model.AirportEntity;
-import com.digrazia.dataIngestion.integration.model.FlightInfoEntity;
 import com.digrazia.dataIngestion.integration.webclient.AirportWebClient;
-import com.digrazia.dataIngestion.integration.webclient.FlightWebClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,7 +45,7 @@ public class AirportServiceImplTest {
         airportService.sendAirportInfoData(airportIcao);
 
         AirportEntity expectedAirportEntity = AirportEntityMapper.fromStringToAirportEntity(response);
-        verify(kafkaProducer, times(1)).sendAirportInfo(expectedAirportEntity);
+        verify(kafkaProducer, times(1)).sendAirportInfo(response);
     }
 
 }

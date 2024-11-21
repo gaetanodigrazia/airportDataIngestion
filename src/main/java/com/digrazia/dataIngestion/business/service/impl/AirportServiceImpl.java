@@ -5,9 +5,12 @@ import com.digrazia.dataIngestion.integration.kafka.KafkaProducer;
 import com.digrazia.dataIngestion.integration.mapper.AirportEntityMapper;
 import com.digrazia.dataIngestion.integration.model.AirportEntity;
 import com.digrazia.dataIngestion.integration.webclient.AirportWebClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -29,8 +32,14 @@ public class AirportServiceImpl implements AirportService {
         String response = airportWebClient.getAirportInfo(airportIcao);
 
         AirportEntity airportEntity = AirportEntityMapper.fromStringToAirportEntity(response);
-
-        kafkaProducer.sendAirportInfo(airportEntity);
+        String json = "";
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            json = objectMapper.writeValueAsString(airportEntity);
+            kafkaProducer.sendAirportInfo(json);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Scheduled(fixedRate = 259200000)

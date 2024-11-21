@@ -5,14 +5,14 @@ import com.digrazia.dataIngestion.integration.kafka.KafkaProducer;
 import com.digrazia.dataIngestion.integration.mapper.FlightInfoEntityMapper;
 import com.digrazia.dataIngestion.integration.model.FlightInfoEntity;
 import com.digrazia.dataIngestion.integration.webclient.FlightWebClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import reactor.util.function.Tuple2;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -35,7 +35,16 @@ public class FlightServiceImpl implements FlightService {
                 .forEach(icao -> {
                     String response = flightWebClient.getAllDeparture(startTime, endTime, icao);
                     List<FlightInfoEntity> flightInfoEntityList = FlightInfoEntityMapper.fromStringToFlightInfoEntitList(response);
-                    kafkaProducer.sendDepartureInfo(flightInfoEntityList);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    String json = "";
+                    try {
+                        json = objectMapper.writeValueAsString(flightInfoEntityList);
+                        kafkaProducer.sendDepartureInfo(json);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+
+
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
@@ -53,8 +62,15 @@ public class FlightServiceImpl implements FlightService {
                 .forEach(icao -> {
                     String response = flightWebClient.getAllArrival(startTime, endTime, icao);
                     List<FlightInfoEntity> flightInfoEntityList = FlightInfoEntityMapper.fromStringToFlightInfoEntitList(response);
-                    kafkaProducer.sendArrivalInfo(flightInfoEntityList);
+                    String json = "";
+                    ObjectMapper objectMapper = new ObjectMapper();
+
                     try {
+                        json = objectMapper.writeValueAsString(flightInfoEntityList);
+                        kafkaProducer.sendArrivalInfo(json);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }                    try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
