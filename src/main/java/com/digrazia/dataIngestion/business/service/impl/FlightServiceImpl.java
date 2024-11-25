@@ -1,14 +1,12 @@
 package com.digrazia.dataIngestion.business.service.impl;
 
-import com.digrazia.dataIngestion.business.service.AirportService;
 import com.digrazia.dataIngestion.business.service.FlightService;
 import com.digrazia.dataIngestion.integration.kafka.KafkaProducer;
-import com.digrazia.dataIngestion.integration.mapper.AirportEntityMapper;
 import com.digrazia.dataIngestion.integration.mapper.FlightInfoEntityMapper;
-import com.digrazia.dataIngestion.integration.model.AirportEntity;
 import com.digrazia.dataIngestion.integration.model.FlightInfoEntity;
-import com.digrazia.dataIngestion.integration.webclient.AirportWebClient;
 import com.digrazia.dataIngestion.integration.webclient.FlightWebClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -30,24 +28,140 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public void sendFlightInfoData(long startTime, long endTime) {
-        String response = flightWebClient.getAllFlights(startTime, endTime);
+    public void sendDeparture(long startTime, long endTime) {
+        List<String> airportIcaoList = getAirportICAOList();
+        airportIcaoList
+                .stream()
+                .forEach(icao -> {
+                    String response = flightWebClient.getAllDeparture(startTime, endTime, icao);
+                    List<FlightInfoEntity> flightInfoEntityList = FlightInfoEntityMapper.fromStringToFlightInfoEntitList(response);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    String json = "";
+                    try {
+                        json = objectMapper.writeValueAsString(flightInfoEntityList);
+                        kafkaProducer.sendDepartureInfo(json);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
 
-        List<FlightInfoEntity> flightInfoEntityList = FlightInfoEntityMapper.fromStringToFlightInfoEntitList(response);
-        kafkaProducer.sendFlightInfo(flightInfoEntityList);
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        System.err.println("Thread interrotto " + icao);
+                    }
+                });
     }
 
-    @Scheduled(fixedRate = 3600000)
-    private void sendHourlyFlightData(){
-        long startTime = getEpochFromLocalDateTime(LocalDateTime.now(), 2);
-        long endTime = getEpochFromLocalDateTime(LocalDateTime.now(), 0);
-        sendFlightInfoData(startTime, endTime);
+    @Override
+    public void sendArrival(long startTime, long endTime) {
+        List<String> airportIcaoList = getAirportICAOList();
+        airportIcaoList
+                .stream()
+                .forEach(icao -> {
+                    String response = flightWebClient.getAllArrival(startTime, endTime, icao);
+                    List<FlightInfoEntity> flightInfoEntityList = FlightInfoEntityMapper.fromStringToFlightInfoEntitList(response);
+                    String json = "";
+                    ObjectMapper objectMapper = new ObjectMapper();
+
+                    try {
+                        json = objectMapper.writeValueAsString(flightInfoEntityList);
+                        kafkaProducer.sendArrivalInfo(json);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        System.err.println("Thread interrotto " + icao);
+                    }
+                });
     }
 
-    private long getEpochFromLocalDateTime(LocalDateTime localDateTime, int hourOffset) {
-        if (hourOffset != 0) {
-            localDateTime = localDateTime.minusHours(hourOffset);
+    @Scheduled(fixedRate = 86472000)
+    private void sendDailyDepartureData(){
+        long startTime = getEpochFromLocalDateTime(true);
+        long endTime = getEpochFromLocalDateTime(false);
+        sendDeparture(startTime, endTime);
+    }
+
+    @Scheduled(fixedRate = 86472000)
+    private void sendDailyArrivalData(){
+        long startTime = getEpochFromLocalDateTime(true);
+        long endTime = getEpochFromLocalDateTime(false);
+        sendArrival(startTime, endTime);
+    }
+
+    private long getEpochFromLocalDateTime(boolean isBeginning) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        if (isBeginning) {
+            localDateTime = localDateTime.minusDays(1L);
         }
         return localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond();
     }
+
+    private List<String> getAirportICAOList() {
+        return List.of(
+                // Italia
+                "LIRF", // Roma Fiumicino
+                "LIMC", // Milano Malpensa
+                "LIML", // Milano Linate
+                "LIPZ", // Venezia Marco Polo
+                "LIRN", // Napoli Capodichino
+                "LIMF", // Torino Caselle
+                "LIPE", // Bologna Guglielmo Marconi
+                "LIRQ", // Firenze Peretola
+                "LICC", // Catania Fontanarossa
+                "LICJ", // Palermo Punta Raisi
+
+                // Regno Unito
+                "EGLL", // Londra Heathrow
+                "EGKK", // Londra Gatwick
+                "EGSS", // Londra Stansted
+                "EGGW", // Londra Luton
+                "EGLC", // Londra City
+                "EGCC", // Manchester
+                "EGBB", // Birmingham
+                "EGPH", // Edimburgo
+                "EGPF", // Glasgow
+                "EGGD", // Bristol
+
+                // Francia
+                "LFPG", // Parigi Charles de Gaulle
+                "LFPO", // Parigi Orly
+                "LFMN", // Nizza Costa Azzurra
+
+                // Svizzera
+                "LSZH", // Zurigo
+                "LSGG", // Ginevra
+                "LFSB", // Basilea-Mulhouse-Friburgo
+
+                // Austria
+                "LOWW", // Vienna
+                "LOWI", // Innsbruck
+
+                // Slovenia
+                "LJLJ", // Lubiana Jože Pučnik
+
+                // Germania
+                "EDDF", // Francoforte
+                "EDDM", // Monaco di Baviera
+                "EDDS", // Stoccarda
+
+                // Croazia
+                "LDZA", // Zagabria
+                "LDRI", // Fiume
+
+                // Dubai
+                "OMDB", // Dubai International Airport
+                "OMDW", // Al Maktoum International Airport
+
+                // New York
+                "KJFK", // John F. Kennedy International Airport
+                "KLGA", // LaGuardia Airport
+                "KEWR"  // Newark Liberty International Airport
+        );
+    }
+
 }

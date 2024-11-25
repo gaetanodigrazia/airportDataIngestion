@@ -41,20 +41,7 @@ public class FlightServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testSendFlightInfoData() {
-        long startTime = getEpochFromLocalDateTime(LocalDateTime.now(), 2);
-        long endTime = getEpochFromLocalDateTime(LocalDateTime.now(), 0);
 
-        String response = "[{\"icao24\":\"0ac424\", \"firstSeen\":1731343759, \"estDepartureAirport\":\"SKBO\"}]";
-
-        when(flightWebClient.getAllFlights(startTime, endTime)).thenReturn(response);
-
-        flightService.sendFlightInfoData(startTime, endTime);
-
-        List<FlightInfoEntity> expectedFlightList = FlightInfoEntityMapper.fromStringToFlightInfoEntitList(response);
-        verify(kafkaProducer, times(1)).sendFlightInfo(expectedFlightList);
-    }
 
 
 

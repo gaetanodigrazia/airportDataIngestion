@@ -1,7 +1,5 @@
 package com.digrazia.dataIngestion.integration.kafka.config;
 
-import com.digrazia.dataIngestion.integration.model.AirportEntity;
-import com.digrazia.dataIngestion.integration.model.FlightInfoEntity;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +10,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -22,7 +19,7 @@ public class KafkaProducerConfig {
     String bootstrapServer;
 
     @Bean
-    public KafkaTemplate<String, AirportEntity> airportKafkaTemplate() {
+    public KafkaTemplate<String, String> airportKafkaTemplate() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
 
@@ -33,7 +30,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, List<FlightInfoEntity>> flightKafkaTemplate() {
+    public KafkaTemplate<String, String> flightKafkaTemplate() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
 
